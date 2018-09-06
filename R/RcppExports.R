@@ -8,8 +8,8 @@
 #' @param maxit the maximum number of iterations
 #' @param epsilon controls the convergence criteria
 #' @return A list containing a K*1 matrix with the pi estimate, the N matrix, the number of iterations, and whether the algorithm converged.
-BT_EM <- function(W, a, b, maxit = 5000L, epsilon = 1e-3) {
-    .Call('_BradleyTerryScalable_BT_EM', PACKAGE = 'BradleyTerryScalable', W, a, b, maxit, epsilon)
+BT_EM <- function(W, a, b, g = 1, maxit = 5000L, epsilon = 1e-3) {
+    .Call('_BradleyTerryScalable_BT_EM', PACKAGE = 'BradleyTerryScalable', W, a, b, g, maxit, epsilon)
 }
 
 btprob_vec <- function(pi) {

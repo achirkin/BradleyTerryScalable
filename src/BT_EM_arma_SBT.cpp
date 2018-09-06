@@ -13,8 +13,9 @@ using namespace arma;
 //' @param epsilon controls the convergence criteria
 //' @return A list containing a K*1 matrix with the pi estimate, the N matrix, the number of iterations, and whether the algorithm converged.
 // [[Rcpp::export]]
-List BT_EM(S4 W, double a, double b, int maxit = 5000, double epsilon = 1e-3) {
+List BT_EM(S4 W, double a, double b, double g = 1, int maxit = 5000, double epsilon = 1e-3) {
 
+  double ig = 1 / g;
   // Convert S4 Matrix to arma Sparse Matrix
   IntegerVector dims = W.slot("Dim");
   arma::urowvec w_i = Rcpp::as<arma::urowvec>(W.slot("i"));
@@ -54,7 +55,7 @@ List BT_EM(S4 W, double a, double b, int maxit = 5000, double epsilon = 1e-3) {
   }
 
   // set up numerator
-  arma::vec numer = arma::vec(sum(W_arma, 1)) + (a - 1);
+  arma::vec numer = arma::vec(sum(W_arma, 1)) + (a - 1)*ig;
 
   // set up pi
   arma::vec pi(K);
@@ -126,7 +127,10 @@ List BT_EM(S4 W, double a, double b, int maxit = 5000, double epsilon = 1e-3) {
     }
 
     // M step
-    denom = arma::vec(sum(N, 1)) + b;
+    if (g == 1)
+      denom = arma::vec(sum(N, 1)) + b;
+    else
+      denom = arma::vec(sum(N, 1)) + b*ig*pow(pi, ig - 1);
     pi = numer / denom;
   } // end while loop
 

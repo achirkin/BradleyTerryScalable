@@ -13,6 +13,8 @@ BT_EM(W, a, b, maxit = 5000L, epsilon = 0.001)
 
 \item{b}{the rate parameter of the gamma prior}
 
+\item{g}{is the factor, such as score^g has the gamma prior}
+
 \item{maxit}{the maximum number of iterations}
 
 \item{epsilon}{controls the convergence criteria}

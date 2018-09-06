@@ -25,6 +25,7 @@
 #' Since the equations do not typeset well within the R help window, we recommend reading this section online: \url{https://ellakaye.github.io/BradleyTerryScalable/reference/btfit.html}.
 #'
 #' @param a Must be >= 1. When \code{a = 1}, the function returns the maximum likelihood estimate (MLE) of \eqn{\pi} (by component, if necessary). When \code{a > 1}, \code{a} is the shape parameter for the Gamma prior. See Details.
+#' @param g Must be > 0. When \code{g = 1}, the prior is the usual gamma distribution. In general, \eqn{\pi^{1/g}} is drawn the gamma distribution. Greater values of \code{g} allow representing higher success rates in comparison data.
 #' @param MAP_by_component Logical. Only considered if a > 1. Then, if FALSE, the MAP estimate will be found on the full dataset. If TRUE, the MAP estimate will be found separately for each fully-connected component.
 #' @param maxit The maximum number of iterations for the algorithm. If returning \eqn{\pi} by component, this will be the maximum number of iterations for each component.
 #' @param epsilon Determines when the algorithm is deemed to have converged. (See Details.)
@@ -57,7 +58,7 @@
 #' fit2c <- btfit(toy_btdata, 1, subset = function(x) length(x) > 3)
 #' summary(fit2c)
 #' @export
-btfit <- function(btdata, a, MAP_by_component = FALSE, subset = NULL, maxit = 10000, epsilon = 1e-3) {
+btfit <- function(btdata, a, g = 1, MAP_by_component = FALSE, subset = NULL, maxit = 10000, epsilon = 1e-3) {
 
   call <- match.call()
 
@@ -119,7 +120,7 @@ btfit <- function(btdata, a, MAP_by_component = FALSE, subset = NULL, maxit = 10
     wins_by_comp <- purrr::map(components, ~ wins[.x, .x])
 
     # Fit the model
-    btfit_map <- purrr::map2(wins_by_comp, b, ~ BT_EM(.x, a = a, b = .y, maxit = maxit, epsilon = epsilon))
+    btfit_map <- purrr::map2(wins_by_comp, b, ~ BT_EM(.x, a = a, b = .y, g = g, maxit = maxit, epsilon = epsilon))
     # transpose
     btfit_map <- purrr::transpose(btfit_map)
 
@@ -147,7 +148,7 @@ btfit <- function(btdata, a, MAP_by_component = FALSE, subset = NULL, maxit = 10
     else b <- a * K - 1
 
     # fit the model
-    fit <- BT_EM(wins, a = a, b = b, maxit = maxit, epsilon = epsilon)
+    fit <- BT_EM(wins, a = a, b = b, g = g, maxit = maxit, epsilon = epsilon)
 
     # extract elements and make sure they're properly named
     pi <- base::as.vector(fit$pi)
