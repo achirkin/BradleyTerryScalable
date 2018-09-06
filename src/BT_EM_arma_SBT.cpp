@@ -16,8 +16,8 @@ using namespace arma;
 List BT_EM(S4 W, double a, double b, double g = 1, int maxit = 5000, double epsilon = 1e-3) {
 
   double ig = 1 / g;
-  double b2 = b * ig * (1 - ig);
-  double b3 = b * ig * ig;
+  double b2 = b * ig;
+
   // Convert S4 Matrix to arma Sparse Matrix
   IntegerVector dims = W.slot("Dim");
   arma::urowvec w_i = Rcpp::as<arma::urowvec>(W.slot("i"));
@@ -129,13 +129,11 @@ List BT_EM(S4 W, double a, double b, double g = 1, int maxit = 5000, double epsi
     }
 
     // M step
-    if (g == 1) {
+    if (g == 1)
       denom = arma::vec(sum(N, 1)) + b;
-      pi = numer / denom;
-    } else {
-      denom = arma::vec(sum(N, 1)) + b3*pow(pi, ig - 1);
-      pi = (numer - b2 * pow(pi, ig)) / denom;
-    }
+    else
+      denom = arma::vec(sum(N, 1)) + b2*pow(pi, ig - 1);
+    pi = numer / denom;
   } // end while loop
 
   return(List::create(
